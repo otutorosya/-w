@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#070808" />
+  <title>心霊巡り — SPIRIT TOUR / 01</title>
+  <style>
+    :root {
+      --paper: #d8d7ce;
+      --muted: #9b9d93;
+      --line: rgba(224,229,214,.25);
+      --dark: #060808;
+      --red: #b34943;
+    }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #050606; }
+    body {
+      color: var(--paper);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+
+    #app, #photo, #photo::before, #photo::after, #noise, #vignette, #flash, #ghost { position: fixed; inset: 0; }
+    #app { isolation: isolate; background: #080909; }
+    #photo {
+      z-index: 0;
+      background-position: center center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      transform: scale(1.035) translate3d(var(--px,0px), var(--py,0px), 0);
+      transition: opacity .65s ease, filter 1.2s ease, transform 12s ease;
+      will-change: transform, filter;
+    }
+    #photo::before {
+      content: "";
+      z-index: 1;
+      background: linear-gradient(180deg, rgba(0,0,0,.28), transparent 28%, transparent 72%, rgba(0,0,0,.62));
+      pointer-events: none;
+    }
+    #photo::after {
+      content: "";
+      z-index: 2;
+      background: radial-gradient(ellipse at center, transparent 36%, rgba(0,0,0,.2) 67%, rgba(0,0,0,.8) 100%);
+      pointer-events: none;
+    }
+    #photo.switching { opacity: 0; }
+    #photo.horror {
+      filter: brightness(.31) contrast(1.28) saturate(.48) sepia(.06);
+      transform: scale(1.13) translate3d(var(--px,0px), var(--py,0px), 0);
+      transition: filter 2.4s ease, transform 14s ease;
+    }
+    #photo.horror::before { background: linear-gradient(180deg, rgba(0,0,0,.5), rgba(4,6,5,.12) 33%, rgba(0,0,0,.74)); }
+
+    #noise {
+      z-index: 4;
+      pointer-events: none;
+      opacity: .12;
+      mix-blend-mode: screen;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cfilter id='x'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.78' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23x)' opacity='.7'/%3E%3C/svg%3E");
+      animation: noise .17s steps(2) infinite;
+    }
+    #vignette { z-index: 5; pointer-events: none; background: radial-gradient(ellipse at center, transparent 46%, rgba(0,0,0,.21) 75%, rgba(0,0,0,.83) 100%); }
+    #flash { z-index: 8; pointer-events: none; opacity: 0; background: #e8ece2; }
+    #flash.pulse { animation: flash .42s ease-out both; }
+    @keyframes noise { 0% { transform: translate(0,0); } 40% { transform: translate(1%,-1%); } 70% { transform: translate(-1%,1%); } 100% { transform: translate(1%,1%); } }
+    @keyframes flash { 0% { opacity: 0; } 9% { opacity: .8; } 28% { opacity: .08; } 100% { opacity: 0; } }
+    @keyframes breathe { 0%,100% { opacity: .7; } 50% { opacity: .92; } }
+
+    #hud { position: fixed; inset: 0; z-index: 6; pointer-events: none; }
+    .top {
+      position: absolute; top: max(16px, env(safe-area-inset-top)); left: max(17px, env(safe-area-inset-left)); right: max(17px, env(safe-area-inset-right));
+      display: flex; justify-content: space-between; align-items: flex-start; text-shadow: 0 2px 12px #000;
+    }
+    .top strong { display: block; font-size: 11px; letter-spacing: .25em; font-weight: 500; }
+    .top span { display: block; margin-top: 5px; color: #a9aaa1; font: 9px/1.5 ui-monospace, monospace; letter-spacing: .1em; }
+    .rec { color: #ddd8ce; text-align: right; font: 10px/1.5 ui-monospace, monospace; letter-spacing: .1em; }
+    .rec i { display: inline-block; width: 6px; height: 6px; margin-right: 5px; border-radius: 50%; background: #b34a44; box-shadow: 0 0 10px #b34a44; animation: breathe 1.5s ease-in-out infinite; }
+    #location { position: absolute; left: 50%; top: 92px; transform: translateX(-50%); max-width: 90vw; text-align: center; color: rgba(229,227,214,.76); font-size: 10px; letter-spacing: .15em; white-space: nowrap; text-shadow: 0 2px 10px #000; }
+    #thought {
+      position: absolute; left: 50%; bottom: 25%; width: min(86vw, 430px); transform: translate(-50%, 8px); opacity: 0;
+      text-align: center; white-space: pre-line; color: #e1ded3; font-size: 14px; line-height: 1.85; letter-spacing: .1em; text-shadow: 0 2px 14px #000; transition: opacity .3s ease, transform .3s ease;
+    }
+    #thought.show { opacity: 1; transform: translate(-50%, 0); }
+    #hint { position: absolute; left: 50%; bottom: 19%; transform: translateX(-50%); opacity: 0; color: rgba(224,225,214,.77); font-size: 10px; letter-spacing: .15em; text-shadow: 0 2px 9px #000; white-space: nowrap; transition: opacity .2s ease; }
+    #hint.show { opacity: 1; }
+
+    #ghost { z-index: 3; pointer-events: none; opacity: 0; transform: translate3d(0,0,0) scale(.92); filter: blur(7px); transition: opacity 1.7s ease, transform 5s cubic-bezier(.16,.78,.24,1), filter 4s ease; }
+    #ghost::before, #ghost::after { content: ""; position: absolute; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.88); }
+    #ghost::before { top: 36%; width: 8vw; height: 8vw; min-width: 25px; min-height: 25px; max-width: 70px; max-height: 70px; border-radius: 50%; }
+    #ghost::after { top: 43%; width: 14vw; height: 30vw; min-width: 50px; min-height: 110px; max-width: 125px; max-height: 270px; border-radius: 48% 48% 20% 20%; }
+    #ghost.present { opacity: .5; }
+    #ghost.near { opacity: .93; transform: translate3d(-2vw, 13vh, 0) scale(1.9); filter: blur(2px); }
+    #ghost.near::before { box-shadow: -8px 3px 0 -6px rgba(165,36,32,.7), 8px 3px 0 -6px rgba(165,36,32,.7); }
+
+    #controls { position: fixed; z-index: 7; left: max(17px, env(safe-area-inset-left)); right: max(17px, env(safe-area-inset-right)); bottom: max(20px, env(safe-area-inset-bottom)); display: flex; align-items: flex-end; justify-content: space-between; pointer-events: none; }
+    .left-actions, .right-actions { display: flex; gap: 8px; pointer-events: auto; }
+    .ctrl { min-width: 56px; height: 52px; padding: 0 14px; border: 1px solid rgba(224,231,219,.28); border-radius: 3px; background: rgba(6,9,8,.56); box-shadow: 0 5px 18px rgba(0,0,0,.28); font-size: 11px; letter-spacing: .08em; }
+    .ctrl:active { background: rgba(220,227,217,.17); transform: scale(.97); }
+    .ctrl.primary { min-width: 122px; border-color: rgba(220,228,215,.58); background: rgba(216,227,214,.1); color: #f0eee2; }
+    .ctrl[disabled] { opacity: .25; }
+    .ctrl.icon { min-width: 52px; padding: 0 8px; font-size: 17px; }
+
+    .modal { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 28px; background: radial-gradient(ellipse at 50% 40%, rgba(15,19,18,.08), rgba(2,3,3,.94) 75%); opacity: 1; visibility: visible; transition: opacity .6s ease, visibility .6s ease; }
+    .modal.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .card { width: min(100%, 410px); text-align: center; }
+    .eyebrow { color: #a7aaa0; font: 9px/1.7 ui-monospace, monospace; letter-spacing: .3em; }
+    h1 { margin: 18px 0 3px; font-size: clamp(32px, 10vw, 56px); font-weight: 300; letter-spacing: .27em; text-indent: .27em; }
+    .roman { color: #9da19a; font: 10px/1.7 ui-monospace, monospace; letter-spacing: .32em; }
+    .lead { margin: 34px auto 27px; color: #a9aaa1; font-size: 12px; line-height: 2.1; letter-spacing: .08em; }
+    .start { min-width: 215px; padding: 15px 22px; border: 1px solid rgba(225,231,220,.44); border-radius: 3px; background: rgba(221,231,219,.08); font-size: 13px; letter-spacing: .2em; }
+    .start:active { background: rgba(221,231,219,.18); }
+    .meta { margin-top: 25px; color: #717771; font-size: 10px; line-height: 1.8; letter-spacing: .04em; }
+    .warning { margin-top: 11px; color: #96534d; font-size: 10px; letter-spacing: .06em; }
+    #endText { white-space: pre-line; }
+    @media (min-width: 700px) { #thought { bottom: 20%; } #hint { bottom: 15%; } #controls { left: 28px; right: 28px; } }
+  </style>
+</head>
+<body>
+  <main id="app">
+    <div id="photo" aria-label="心霊スポットの写真"></div>
+    <div id="ghost"></div>
+    <div id="noise"></div><div id="vignette"></div><div id="flash"></div>
+
+    <div id="hud" aria-hidden="true">
+      <div class="top">
+        <div><strong>心霊巡り</strong><span>FIELD NOTE / SPOT 01</span></div>
+        <div class="rec"><i></i>REC <span id="timer">00:00:00</span></div>
+      </div>
+      <div id="location">LOCATION UNKNOWN / 海沿いの旧施設</div>
+      <div id="thought"></div>
+      <div id="hint"></div>
+    </div>
+
+    <div id="controls">
+      <div class="left-actions">
+        <button id="backBtn" class="ctrl icon" aria-label="前の場所へ戻る">‹</button>
+        <button id="soundBtn" class="ctrl icon" aria-label="音を切り替える">♬</button>
+      </div>
+      <div class="right-actions">
+        <button id="cameraBtn" class="ctrl" aria-label="写真を撮る">撮影</button>
+        <button id="primaryBtn" class="ctrl primary" aria-label="次へ進む">道を進む</button>
+      </div>
+    </div>
+
+    <section id="startModal" class="modal">
+      <div class="card">
+        <div class="eyebrow">A PHOTO-REAL PSYCHOLOGICAL HORROR</div>
+        <h1>心霊巡り</h1>
+        <div class="roman">SPIRIT TOUR / FIELD NOTE 01</div>
+        <p class="lead">写真に残された場所を訪ねる。<br>そこに、開いている扉があるなら——</p>
+        <button id="startBtn" class="start">記録を開始</button>
+        <div class="meta">画面を左右にスワイプ：周囲を確認<br>撮影ボタン：現場を記録</div>
+        <div class="warning">※突然の音・点滅・暗い写真の変化があります</div>
+      </div>
+    </section>
+
+    <section id="endModal" class="modal hidden">
+      <div class="card">
+        <div class="eyebrow">FIELD NOTE CLOSED / SPOT 01</div>
+        <h1>記録終了</h1>
+        <div class="roman">THE OPEN DOOR WAS NOT EMPTY</div>
+        <p id="endText" class="lead">撮影データを確認すると、
+あなたの後ろに立つ影が一枚だけ増えていた。</p>
+        <button id="restartBtn" class="start">もう一度訪れる</button>
+        <div class="meta">心霊巡り / FIELD NOTE 01</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const photo = document.getElementById('photo');
+      const ghost = document.getElementById('ghost');
+      const flash = document.getElementById('flash');
+      const thought = document.getElementById('thought');
+      const hint = document.getElementById('hint');
+      const locationEl = document.getElementById('location');
+      const timerEl = document.getElementById('timer');
+      const startModal = document.getElementById('startModal');
+      const endModal = document.getElementById('endModal');
+      const startBtn = document.getElementById('startBtn');
+      const restartBtn = document.getElementById('restartBtn');
+      const primaryBtn = document.getElementById('primaryBtn');
+      const backBtn = document.getElementById('backBtn');
+      const cameraBtn = document.getElementById('cameraBtn');
+      const soundBtn = document.getElementById('soundBtn');
+
+      const scenes = [
+        { image: 'spot-road.jpeg', title: '海沿いの坂道', message: '地図にない道の先に、\n古い建物がある。', button: '道を進む' },
+        { image: 'spot-trail.jpeg', title: '森の遊歩道', message: '人の気配はない。\nそれでも、足音だけが少し遅れてついてくる。', button: 'さらに進む' },
+        { image: 'spot-sea.jpeg', title: '海の見える斜面', message: '海は静かすぎる。\nさっきから波の音が聞こえない。', button: '斜面を下る' },
+        { image: 'spot-wide.jpeg', title: '建物を発見', message: '草に埋もれた白い建物。\n扉は、すべて閉じている。', button: '建物に近づく' },
+        { image: 'spot-front.jpeg', title: '正面', message: '古い木の扉。\n鍵は掛かっているように見える。', button: '周囲を確認' },
+        { image: 'spot-doors.jpeg', title: '違和感', message: 'さっきまで閉じていたはずの扉が、\nひとつだけ開いている。', button: '開いた場所へ' },
+        { image: 'spot-entrance.jpeg', title: '開いた入口', message: '中は暗い。\n奥に、誰かが立っているように見える。', button: '中をのぞく', entrance: true }
+      ];
+
+      let sceneIndex = 0;
+      let playing = false;
+      let horrorStarted = false;
+      let ended = false;
+      let elapsed = 0;
+      let thoughtTimer = 0;
+      let horrorTimer = 0;
+      let audioCtx = null;
+      let master = null;
+      let soundOn = true;
+      let pointer = null;
+
+      const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+
+      function audioStart() {
+        if (audioCtx || !soundOn) return;
+        const Ctor = window.AudioContext || window.webkitAudioContext;
+        if (!Ctor) return;
+        try {
+          audioCtx = new Ctor();
+          master = audioCtx.createGain();
+          master.gain.value = .13;
+          master.connect(audioCtx.destination);
+          const drone = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          drone.type = 'sine'; drone.frequency.value = 42; gain.gain.value = .08;
+          drone.connect(gain).connect(master); drone.start();
+        } catch (error) { audioCtx = null; master = null; }
+      }
+
+      function sound(freq = 120, duration = .2, volume = .07, type = 'sine', delay = 0) {
+        if (!audioCtx || !master || !soundOn) return;
+        try {
+          const now = audioCtx.currentTime + delay;
+          const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+          osc.type = type; osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(.0001, now); gain.gain.exponentialRampToValueAtTime(volume, now + .02); gain.gain.exponentialRampToValueAtTime(.0001, now + duration);
+          osc.connect(gain).connect(master); osc.start(now); osc.stop(now + duration + .03);
+        } catch (error) { /* 音声なしでもゲームは動作 */ }
+      }
+
+      function showThought(text, duration = 3.4) {
+        thought.textContent = text;
+        thought.classList.add('show');
+        clearTimeout(thoughtTimer);
+        thoughtTimer = setTimeout(() => thought.classList.remove('show'), duration * 1000);
+      }
+
+      function updateTimer() {
+        const s = Math.floor(elapsed);
+        const h = String(Math.floor(s / 3600)).padStart(2, '0');
+        const m = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+        const sec = String(s % 60).padStart(2, '0');
+        timerEl.textContent = `${h}:${m}:${sec}`;
+      }
+
+      function setPhoto(src, horror = false) {
+        photo.classList.add('switching');
+        setTimeout(() => {
+          photo.style.backgroundImage = `url('${src}')`;
+          photo.classList.toggle('horror', horror);
+          photo.classList.remove('switching');
+        }, 180);
+      }
+
+      function loadScene(index, initial = false) {
+        sceneIndex = clamp(index, 0, scenes.length - 1);
+        const scene = scenes[sceneIndex];
+        horrorStarted = false;
+        ghost.classList.remove('present', 'near');
+        clearTimeout(horrorTimer);
+        setPhoto(scene.image, false);
+        locationEl.textContent = `LOCATION UNKNOWN / ${scene.title}`;
+        primaryBtn.textContent = scene.button;
+        backBtn.disabled = sceneIndex === 0;
+        cameraBtn.disabled = false;
+        hint.textContent = scene.entrance ? '扉の奥に、何かがいる' : '画面をスワイプして周囲を確認';
+        hint.classList.toggle('show', sceneIndex > 1);
+        if (!initial) showThought(scene.message, 3.8);
+      }
+
+      function start() {
+        sceneIndex = 0; elapsed = 0; ended = false; playing = true; horrorStarted = false;
+        startModal.classList.add('hidden'); endModal.classList.add('hidden');
+        audioStart();
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        loadScene(0, true);
+        showThought('現場に到着した。\n記録を開始する。', 3.3);
+        sound(160, .26, .045, 'sine');
+      }
+
+      function peekInside() {
+        if (horrorStarted) return;
+        horrorStarted = true;
+        hint.classList.remove('show');
+        primaryBtn.textContent = '後ろへ戻る';
+        cameraBtn.disabled = true;
+        locationEl.textContent = 'RECORDING ERROR / INTERIOR';
+        setPhoto('spot-entrance.jpeg', true);
+        showThought('中には、何もない。\n……今は。', 2.4);
+        sound(58, .95, .12, 'sawtooth');
+        horrorTimer = setTimeout(() => {
+          ghost.classList.add('present');
+          showThought('奥にいるのは、誰？', 2.8);
+          sound(92, .35, .09, 'triangle');
+          horrorTimer = setTimeout(() => {
+            flash.classList.remove('pulse'); void flash.offsetWidth; flash.classList.add('pulse');
+            ghost.classList.add('near');
+            showThought('振り返らないで。', 2.7);
+            sound(35, 1.2, .16, 'sawtooth');
+            horrorTimer = setTimeout(() => {
+              primaryBtn.textContent = '記録を終了する';
+              cameraBtn.disabled = false;
+            }, 1900);
+          }, 2300);
+        }, 1700);
+      }
+
+      function finish() {
+        if (ended) return;
+        ended = true; playing = false; clearTimeout(horrorTimer);
+        endModal.classList.remove('hidden');
+        if (master && audioCtx) master.gain.setTargetAtTime(.025, audioCtx.currentTime, .5);
+      }
+
+      function primaryAction() {
+        if (!playing || ended) return;
+        if (sceneIndex < scenes.length - 1) {
+          if (sceneIndex === scenes.length - 1) return;
+          loadScene(sceneIndex + 1);
+          sound(94, .12, .045, 'triangle');
+        } else if (!horrorStarted) {
+          peekInside();
+        } else {
+          finish();
+        }
+      }
+
+      function goBack() {
+        if (!playing || sceneIndex === 0 || horrorStarted) return;
+        loadScene(sceneIndex - 1);
+        sound(72, .12, .03, 'triangle');
+      }
+
+      function capture() {
+        if (!playing || ended) return;
+        flash.classList.remove('pulse'); void flash.offsetWidth; flash.classList.add('pulse');
+        sound(660, .08, .05, 'square'); sound(330, .15, .03, 'square', .08);
+        showThought(sceneIndex === scenes.length - 1 ? '撮影した。\nシャッター音が、二回聞こえた。' : '撮影した。', 2.1);
+      }
+
+      function toggleSound() {
+        soundOn = !soundOn;
+        soundBtn.textContent = soundOn ? '♬' : '♩';
+        if (!soundOn && master && audioCtx) master.gain.setTargetAtTime(0, audioCtx.currentTime, .08);
+        if (soundOn) { audioStart(); if (master && audioCtx) master.gain.setTargetAtTime(.13, audioCtx.currentTime, .08); sound(520, .08, .04, 'sine'); }
+      }
+
+      startBtn.addEventListener('click', start);
+      restartBtn.addEventListener('click', start);
+      primaryBtn.addEventListener('click', primaryAction);
+      backBtn.addEventListener('click', goBack);
+      cameraBtn.addEventListener('click', capture);
+      soundBtn.addEventListener('click', toggleSound);
+
+      document.addEventListener('pointerdown', e => { pointer = { x: e.clientX, y: e.clientY }; });
+      document.addEventListener('pointermove', e => {
+        if (!pointer) return;
+        const dx = clamp(e.clientX - window.innerWidth / 2, -window.innerWidth / 2, window.innerWidth / 2);
+        const dy = clamp(e.clientY - window.innerHeight / 2, -window.innerHeight / 2, window.innerHeight / 2);
+        photo.style.setProperty('--px', `${dx * .012}px`); photo.style.setProperty('--py', `${dy * .008}px`);
+      });
+      document.addEventListener('pointerup', () => { pointer = null; });
+
+      function frame(now) {
+        if (!frame.last) frame.last = now;
+        const dt = Math.min(.05, (now - frame.last) / 1000);
+        frame.last = now;
+        if (playing && !ended) { elapsed += dt; updateTimer(); }
+        requestAnimationFrame(frame);
+      }
+
+      loadScene(0, true);
+      requestAnimationFrame(frame);
+    })();
+  </script>
+</body>
+</html>
