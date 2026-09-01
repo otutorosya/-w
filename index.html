@@ -22,16 +22,24 @@
 #lens{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.7;mix-blend-mode:screen;background:radial-gradient(ellipse at 50% 46%,transparent 38%,rgba(132,165,157,.035) 68%,rgba(0,0,0,.22) 100%),linear-gradient(90deg,rgba(80,112,138,.045),transparent 17%,transparent 83%,rgba(150,92,76,.04));filter:contrast(1.025) saturate(.88)}
 #lens:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.018),transparent 18%,transparent 82%,rgba(0,0,0,.08));opacity:.7}
 </style>
+<style>
+#rearMirror{top:max(56px,calc(env(safe-area-inset-top) + 48px));width:min(46vw,220px);height:min(17vw,78px);overflow:hidden;border:3px solid rgba(31,29,25,.92);border-radius:6px 6px 12px 12px;background:linear-gradient(104deg,rgba(142,163,154,.46),rgba(62,78,74,.42) 42%,rgba(12,19,19,.9)),radial-gradient(ellipse at 54% 82%,rgba(0,0,0,.74),transparent 49%);box-shadow:0 3px 13px rgba(0,0,0,.9),inset 0 0 12px rgba(0,0,0,.82);filter:blur(.1px)}
+#rearMirror.show{opacity:.94;animation:mirrorBreath 1.8s ease-in-out infinite alternate}
+#rearMirror::before{content:"";position:absolute;left:50%;bottom:3%;width:28%;height:88%;transform:translateX(-50%) scale(.84);opacity:0;border-radius:45% 45% 20% 20%;background:radial-gradient(ellipse at 50% 16%,rgba(0,0,0,.99) 0 16%,transparent 17%),radial-gradient(ellipse at 50% 76%,rgba(0,0,0,.94) 0 43%,transparent 44%),linear-gradient(90deg,transparent 23%,rgba(0,0,0,.92) 24% 76%,transparent 77%);filter:blur(.85px)}
+#rearMirror.show::before{opacity:.9;animation:mirrorShadow 2.8s ease-in-out infinite alternate}
+#rearMirror::after{content:"";position:absolute;inset:-32% -12%;background:linear-gradient(111deg,transparent 37%,rgba(226,235,224,.18) 45%,transparent 52%),radial-gradient(ellipse at 50% 120%,rgba(160,45,35,.18),transparent 55%);mix-blend-mode:screen;animation:mirrorGlint 3.2s linear infinite}
+@keyframes mirrorBreath{0%,100%{transform:translateX(-50%) perspective(80px) rotateX(-4deg)}50%{transform:translateX(-50%) perspective(80px) rotateX(-4deg) scale(1.015)}}@keyframes mirrorShadow{0%{transform:translateX(-50%) scale(.84);opacity:.56}100%{transform:translateX(-50%) scale(1.02);opacity:.96}}@keyframes mirrorGlint{0%{transform:translateX(-18%);opacity:.18}48%,100%{transform:translateX(18%);opacity:.5}}
+</style>
 </head>
 <body>
 <canvas id="fallback"></canvas><canvas id="gl"></canvas><div id="grade"></div><div id="lens" aria-hidden="true"></div><div id="saltMist" aria-hidden="true"></div><div id="spiritOverlay" aria-hidden="true"></div><div id="driveOverlay" aria-hidden="true"></div><div id="rearMirror" aria-hidden="true"></div><div id="vignette"></div><div id="grain"></div><div id="flash"></div>
-<div id="hud"><div class="top"><div><strong>心霊巡り / REAL 3D</strong><small>SPOT 01 — 海沿いの旧施設 / BUILD 68</small></div><div class="rec"><i></i>REC <span id="clock">00:00</span></div></div><div id="objective" class="objective">目的：建物1番奥の部屋の写真を撮る</div><div id="prompt" class="prompt"></div><div id="msg" class="msg"></div></div>
+<div id="hud"><div class="top"><div><strong>心霊巡り / REAL 3D</strong><small>SPOT 01 — 海沿いの旧施設 / BUILD 69</small></div><div class="rec"><i></i>REC <span id="clock">00:00</span></div></div><div id="objective" class="objective">目的：建物1番奥の部屋の写真を撮る</div><div id="prompt" class="prompt"></div><div id="msg" class="msg"></div></div>
 <div id="boarSignLabel" aria-hidden="true">イノシシ注意！　イノシシと遭遇したら目を合わさない！急に動かない！</div>
 <div id="beachSignLabel" aria-hidden="true"></div>
 <div id="renderStatus" role="status" aria-live="polite"></div>
 <div id="controls"><div id="stick" class="stick"><div class="stickLabel">LOOK</div><div id="knob" class="knob"></div></div><div id="moveBtns" class="moveBtns"><button id="forward" class="b move" aria-label="前進"><span>▲</span><small>前進</small></button><button id="back" class="b move" aria-label="後退"><span>▼</span><small>後退</small></button></div><div class="acts"><button id="light" class="b">LIGHT</button><button id="shot" class="b">撮影</button><button id="action" class="b main">調べる</button></div></div>
 <section id="photoView" aria-hidden="true"><div class="photoFrame"><img id="photoViewImg" src="spot-road.jpeg" alt="現地写真"><div class="photoLabel">FIELD CAMERA / SPOT 01</div><div id="photoViewText" class="photoCaption">現地写真を確認中</div></div></section>
-<section id="start" class="modal"><div class="card"><div class="eyebrow">A MOBILE REAL-TIME HORROR</div><h1>心霊巡り</h1><div class="roman">REAL 3D / FIELD NOTE 01 / BUILD 68</div><p class="lead">実際に歩いて、場所を探す。<br>扉の奥へ進んだら、帰り道を覚えておくこと。</p><button id="startBtn" class="start">探索を開始</button><div class="meta">左レバー：視界変更　▲▼：前進・後退<br>イヤホン・暗い場所でのプレイを推奨</div><div class="warn">※突然の音・点滅・恐怖演出があります</div></div></section>
+<section id="start" class="modal"><div class="card"><div class="eyebrow">A MOBILE REAL-TIME HORROR</div><h1>心霊巡り</h1><div class="roman">REAL 3D / FIELD NOTE 01 / BUILD 69</div><p class="lead">実際に歩いて、場所を探す。<br>扉の奥へ進んだら、帰り道を覚えておくこと。</p><button id="startBtn" class="start">探索を開始</button><div class="meta">左レバー：視界変更　▲▼：前進・後退<br>イヤホン・暗い場所でのプレイを推奨</div><div class="warn">※突然の音・点滅・恐怖演出があります</div></div></section>
 <section id="end" class="modal hide"><div class="card"><div class="eyebrow">DAY 01 COMPLETE</div><h1>2日目に続く</h1><div class="roman">FIELD NOTE CLOSED</div><p class="lead">こうして心霊スポットツアー１日目は終了した。あの影はなんだったのか、、、<br>影に捕まっていたらどうなっていたのか、、、<br>初日にしてはスリリングな体験だった。<br>また明日は別の心霊スポットに行かなくてはならない。今日はもう寝よう。</p><button id="restart" class="start">もう一度探索</button></div></section>
 <section id="fail" class="modal hide"><div class="card"><div class="eyebrow">FIELD NOTE LOST</div><h1>見つかった</h1><div class="roman">SOMETHING FOLLOWED YOU OUT</div><p class="lead">足音が、あなたの後ろで止まった。<br>次に目を開けた時、道は消えていた。</p><button id="failRestart" class="start">もう一度逃げる</button></div></section>
 <section id="boarFail" class="modal hide"><div class="card"><div class="eyebrow">FIELD NOTE LOST</div><h1>気を失った</h1><div class="roman">WILD ENCOUNTER</div><p class="lead">次に目を覚ますと病院のベッドの上だった。<br>心霊スポットよりも野生の動物が恐ろしいのかもしれない…</p><button id="boarFailRestart" class="start">もう一度探索</button></div></section>
@@ -122,7 +130,7 @@ for(const q of [[-14.6,7.0,.28],[-15.2,14.0,.34],[-14.1,23.0,.32],[-9.8,29.0,.3]
 function lampPost(x,z,flip=1){cylY(x,0,z,.085,3.45,[.16,.17,.16],1);cylY(x,.06,z,.2,.08,[.25,.23,.18],2);box(x+.31*flip,3.31,z,.68,.075,.075,[.16,.17,.16],1);box(x+.64*flip,3.2,z,.2,.18,.2,[.22,.23,.2],1);sphere(x+.64*flip,3.1,z,.15,.09,.15,light,2)}lampPost(-13.7,11.2,1);lampPost(12.7,25.7,-1);
 // 動画に合わせた道路側の電柱、青い案内板、暗い遊歩道入口。
 pathStrip(-8.8,29.7,-14.75,28.35,3.25,road,0);segmentBox(-8.8,31.38,-14.35,29.85,.22,.3,.15,[.35,.37,.34],2);
-const gatePoleX=-13.25,gatePoleZ=28.05;cylY(gatePoleX,0,gatePoleZ,.16,6.25,[.22,.22,.2],1);cylY(gatePoleX,.03,gatePoleZ,.3,.12,[.33,.32,.28],2);box(gatePoleX,5.62,gatePoleZ,2.0,.12,.12,[.18,.18,.17],1);box(gatePoleX,5.12,gatePoleZ,1.25,.1,.1,[.18,.18,.17],1);for(const ox of [-.82,.82])cylY(gatePoleX+ox,5.46,gatePoleZ,.055,.24,[.48,.45,.37],2);segmentBox(gatePoleX-.9,gatePoleZ,8.7,38.0,.035,.035,5.78,[.07,.07,.065],1);segmentBox(gatePoleX+.9,gatePoleZ,10.2,38.0,.035,.035,5.7,[.07,.07,.065],1);
+const gatePoleX=-12,gatePoleZ=31.6;cylY(gatePoleX,0,gatePoleZ,.16,6.25,[.22,.22,.2],1);cylY(gatePoleX,.03,gatePoleZ,.3,.12,[.33,.32,.28],2);box(gatePoleX,5.62,gatePoleZ,2.0,.12,.12,[.18,.18,.17],1);box(gatePoleX,5.12,gatePoleZ,1.25,.1,.1,[.18,.18,.17],1);for(const ox of [-.82,.82])cylY(gatePoleX+ox,5.46,gatePoleZ,.055,.24,[.48,.45,.37],2);segmentBox(gatePoleX-.9,gatePoleZ,8.7,38.0,.035,.035,5.78,[.07,.07,.065],1);segmentBox(gatePoleX+.9,gatePoleZ,10.2,38.0,.035,.035,5.7,[.07,.07,.065],1);
 for(const x of [-11.75,-10.45])cylY(x,0,29.15,.055,2.55,[.25,.26,.24],1);box(-11.1,1.78,29.15,1.7,1.15,.09,[.025,.12,.28],1);box(-11.1,1.78,29.09,1.52,.95,.025,[.035,.2,.42],2);box(-11.1,1.82,29.065,.82,.055,.018,[.78,.79,.7],2);box(-11.45,1.58,29.064,.48,.045,.018,[.78,.79,.7],2);
 // 金網のごみ置き場。入口を探す途中の現実的な目印になる。
 for(const x of [-14.45,-12.65])for(const z of [25.55,26.75])cylY(x,0,z,.045,1.15,[.28,.29,.27],1);for(const y of [.25,.58,.9]){segmentBox(-14.45,25.55,-12.65,25.55,.035,.035,y,[.3,.31,.29],1);segmentBox(-14.45,26.75,-12.65,26.75,.035,.035,y,[.3,.31,.29],1);segmentBox(-14.45,25.55,-14.45,26.75,.035,.035,y,[.3,.31,.29],1);segmentBox(-12.65,25.55,-12.65,26.75,.035,.035,y,[.3,.31,.29],1)}box(-13.55,.18,26.15,1.35,.34,.75,[.18,.16,.12],1);
@@ -213,8 +221,7 @@ const BUILDING_COLLIDERS=[
   [-4.95,BZ(-18.5),.35,21.0],[4.95,BZ(-18.5),.35,21.0],
   [-1.3,BZ(-8.9),.28,1.8],[-1.3,BZ(-13.95),.28,4.7],[-1.3,BZ(-20.02),.28,3.65],
   [1.3,BZ(-8.9),.28,1.8],[1.3,BZ(-16.72),.28,10.25],
-  [-3.15,BZ(-14),3.7,.28],[3.15,BZ(-14),3.7,.28],
-  [-3.15,DEEP_ROOM_FRONT_Z,3.7,.3],[3.15,DEEP_ROOM_FRONT_Z,3.7,.3],
+  // 廊下を横切る仕切り用の当たり判定は置かない。中央線は最奥まで開放する。
   [-3.25,BZ(-11.8),1.8,1.15],[3.25,BZ(-11.85),2.25,.85],[-4.38,BZ(-17.4),.72,2.65],
   [3.55,BZ(-25.5),1.75,.9],[-3.95,BZ(-25.8),.8,2.8]
 ];
@@ -231,8 +238,8 @@ for(const s of [[-2.86,1.68,.16,2.55],[2.72,1.42,.12,2.08],[-1.62,3.42,.09,.62],
 for(const y of [.55,1.56,2.48])box(-1.18,y,-5.13,.32,.08,.06,[.16,.07,.035],4.1);cylY(.86,1.24,-5.1,.045,.48,[.19,.085,.038],4.1);sphere(.86,1.22,-5.16,.09,.09,.06,[.12,.055,.03],4.1);
 // 内部は中央廊下、左右3室、最奥の撮影室という四つの空間に再構築。
 box(0,-.02,-18.5,10,.15,21,insideFloor,0);box(-4.95,1.85,-18.5,.35,3.7,21,insideWall,2);box(4.95,1.85,-18.5,.35,3.7,21,insideWall,2);box(0,3.7,-18.5,10,.24,21,dark,2);/* 廊下の奥を塞いでいた壁状オブジェクトは撤去し、最奥の部屋へそのまま進める。 */
-function wallX(x,z,len){box(x,1.72,z,.28,3.44,len,insideWall,2)}function wallZ(x,z,len){box(x,1.72,z,len,3.44,.28,insideWall,2)}
-for(const p of [[-1.3,-8.9,1.8],[-1.3,-13.95,4.7],[-1.3,-20.02,3.65],[1.3,-8.9,1.8],[1.3,-16.72,10.25]])wallX(p[0],p[1],p[2]);wallZ(-3.15,-14,3.7);wallZ(3.15,-14,3.7);wallZ(-3.15,-22,3.7);wallZ(3.15,-22,3.7);
+function wallX(x,z,len){box(x,1.72,z,.28,3.44,len,insideWall,2)}
+for(const p of [[-1.3,-8.9,1.8],[-1.3,-13.95,4.7],[-1.3,-20.02,3.65],[1.3,-8.9,1.8],[1.3,-16.72,10.25]])wallX(p[0],p[1],p[2]);/* 廊下の正面を塞ぐ横壁・横断扉は置かない。最奥の撮影室まで見通せる開口を維持する。 */
 // 左右の部屋には朽ちた枠だけを残す。廊下正面の最奥開口は扉板・壁板を置かず、奥の部屋まで見通せる通路にする。
 function sideDoorFrame(x,z){box(x,3.05,z,.38,.18,2.05,[.17,.13,.085],1);box(x,1.48,z-.96,.38,2.96,.13,[.17,.13,.085],1);box(x,1.48,z+.96,.38,2.96,.13,[.17,.13,.085],1)}sideDoorFrame(-1.3,-10.7);sideDoorFrame(1.3,-10.7);sideDoorFrame(-1.3,-17.25);/* 最奥の開口は完全に開放。正面を塞ぐ扉板・横桟は撤去。 */
 // 廊下の継ぎ目、湿った補修跡、天井から垂れた配管。
@@ -410,6 +417,8 @@ const completionBase=updateCompletionCues;updateCompletionCues=function(dt){comp
 const completionMove=move;move=function(dt){completionMove(dt);updateCompletionCues(dt)};
 const completionReset=reset;reset=function(){completionReset();clearCompletionTimers();forestSnapFired=false;interiorKnockFired=false;lateFootstepFired=false;interiorIdle=0;saltMist.classList.remove('show');rearMirror.classList.remove('show')};
 const environmentReset=reset;reset=function(){environmentReset();beachTracksVisible=false;beachLightEntryTimer=0;clearBeachDistantSteps();beachDistantStepFiredCount=0;returnMetalFired=false;returnFootstepFired=false};
+// 車内へ入った直後は前方の運転演出を優先し、少し経ってからバックミラーに追跡する影を映す。
+const mirrorCueBase=updateCompletionCues;updateCompletionCues=function(dt){mirrorCueBase(dt);if(driving&&driveTimer>1.1)rearMirror.classList.add('show');else if(!driving)rearMirror.classList.remove('show')};
 // 追加メッシュは通常の描画を保ったまま、進行状況で表示だけを切り替える。
 const F_EVENT=F_REAL.replace('uniform sampler2D detailTex;','uniform sampler2D detailTex;uniform float beachTracks;').replace('void main(){','void main(){if(vm>12.5&&vm<13.5&&changed<.5)discard;if(vm>13.5&&vm<14.5&&beachTracks<.5)discard;');
 const F_SAFE_EVENT=F_SAFE.replace('uniform float indoors;','uniform float indoors;uniform float beachTracks;').replace('void main(){','void main(){if(vm>12.5&&vm<13.5&&changed<.5)discard;if(vm>13.5&&vm<14.5&&beachTracks<.5)discard;');
@@ -418,7 +427,7 @@ const F_CINEMA=F_EVENT.replace('vec3 moon=normalize(vec3(-.35,.9,.25));','float 
 const F_SAFE_CINEMA=F_SAFE_EVENT.replace('gl_FragColor=vec4(max(col,vec3(.003)),1.0);','float broad=sin(wp.x*.42+wp.z*.31)*.5+.5;col*=.965+broad*.045;gl_FragColor=vec4(max(col,vec3(.003)),1.0);');
 U.beachTracks=null;const environmentProgram=buildProgram(qualityRenderer?F_CINEMA:F_SAFE_CINEMA,'environment layer');if(gl.getProgramParameter(environmentProgram,gl.LINK_STATUS)){prog=environmentProgram;for(const key of Object.keys(A))A[key]=gl.getAttribLocation(prog,key);for(const key of Object.keys(U))U[key]=gl.getUniformLocation(prog,key);gl.useProgram(prog);if(U.detailTex)gl.uniform1i(U.detailTex,0)}
 const environmentDraw=draw;draw=function(){if(webglReady&&U.beachTracks){gl.useProgram(prog);gl.uniform1f(U.beachTracks,beachTracksVisible?1:0)}environmentDraw()};
-if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js?v=68').catch(()=>{});
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js?v=69').catch(()=>{});
 })();
 </script>
 </body></html>
