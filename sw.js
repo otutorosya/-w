@@ -1,4 +1,4 @@
-const CACHE='spirit-real-3d-v79';
+const CACHE='spirit-real-3d-v80';
 const ASSETS=['./','./index.html','./manifest.webmanifest','./spot-road.jpeg','./spot-entrance.jpeg','./spot-sea.jpeg','./spot-trail.jpeg','./spot-wide.jpeg','./spot-front.jpeg','./spot-doors.jpeg','./spot-cliff.jpeg','./material-plaster-v78.png','./material-wood-v78.png','./material-ground-v78.png'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
