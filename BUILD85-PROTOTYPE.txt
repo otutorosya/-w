@@ -1,0 +1,22 @@
+BUILD85 写実人物・技術試作（完成版ではありません）
+
+BUILD84を基に、内蔵画像生成で制作した架空の成人女性の写実PNGを追加。
+透過PNGを小さな湾曲面へ投影し、追跡・地面追従・ライト・霧・奥行き遮蔽に対応。
+バックミラーにも同じ女性素材を使用します。
+素材読み込み失敗時はBUILD84の人体モデルへ戻ります。
+
+重要な制限
+これは2.5Dの試作であり、全方向から見られる写実的な3D人体ではありません。
+撮影・スキャンされた3D人物への置換ではなく、AI生成画像を使用しています。
+画像の見た目は確認しましたが、ゲーム実行画面の確認は完了していません。
+検証用ブラウザの取得がタイムアウトしたため、実写同等の達成を宣言しません。
+ブラウザでの表示、動き、影、距離変化は実機での追加確認が必要です。
+既存公開サイトは更新していません。BUILD84の元ファイルも変更していません。
+
+画像検討
+第1候補：1024x1536 RGBA。本物の透過チャンネルを確認し、採用。
+第2候補：背景除去を再依頼したもののRGB市松背景となり、不採用。
+採用素材：woman-photographic-v85.png
+生成方式：内蔵image_gen。外部API/CLI不使用。
+採用プロンプト：
+Use case: photorealistic-natural. Asset type: high-resolution full-body character cutout for a browser horror game, genuinely transparent background alpha PNG. Create one fictional adult Japanese woman about age 30, long unkempt damp black hair reaching waist, wearing a filthy aged off-white ankle-length short-sleeved cotton one-piece dress with actual fabric weight, seams, uneven muddy hem and damp brown earth stains. Bare feet, naturally lowered arms, relaxed separated fingers, one foot slightly forward, facing exactly front. Pale lifelike skin with subtle pores and natural eye sockets, dark unlit eyes partly hidden by individual hair strands, unsettling blank expression. Very realistic live-action photographic costume reference, not CGI, not illustration, not cartoon, not stylized, not plastic skin. Soft neutral frontal illumination with subtle modeling, no dramatic rim light, no glow, no fog, no visible environment, no floor, no cast floor shadow. Whole figure from crown to toes fully visible with 5% transparent padding around it, centered portrait composition, 2:3 aspect ratio. Preserve realistic adult anatomy. No gore, no wounds, no text, no accessories. Intended as reusable in-game image material; output actual transparency.
