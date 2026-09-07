@@ -1,0 +1,17 @@
+BUILD87 — 採用した画像素材 / Generation record
+
+方式: built-in image_gen（CLI・外部APIへの切替なし）。
+女性素材: woman-photographic-v87.png
+作業ファイル: /workspace/scratch/8c7e21b86c9f/build87-work/woman-photographic-v87.png
+女性の入力: BUILD85の既存女性画像。原画像は変更せず、別名で保存。
+PNGはRGB。透明背景としては使用せず、輪郭に沿う分割3Dメッシュとフラグメントの無彩色背景キーで背景を描画しない。ミラーは輪郭クリップを使用。
+
+Final woman prompt:
+Use case: identity-preserve. Asset: alpha cutout of fictional adult woman for a horror game. Image 1 is the edit target. Preserve her full body, dimensions and framing, ankle-length filthy off-white dress, realistic photographic detail and bodily proportions. Change her hairstyle to thick damp black hair hanging forward over her ENTIRE face: neither eyes nor nose nor mouth should be recognizable. Head slightly bowed, no luminous eyes. Change exposed arms, hands and feet to deeply darkened ash-brown/near charcoal skin, dirty and low-contrast, with natural skin texture. Bend both elbows softly so relaxed hands extend slightly forward toward viewer at low waist height (about 25 cm), no raised zombie pose. NO face visible. Output genuine alpha transparency around the silhouette and between limbs. No background, no glow, no halo, no fog, no shadows, and NO checkerboard pixels. Preserve actual alpha transparency. Single full figure, full feet and hair inside image, 1024x1536.
+
+イノシシ素材: boar-coat-v87.png
+作業ファイル: /workspace/scratch/8c7e21b86c9f/build87-work/boar-coat-v87.png
+新規生成した毛並みの写真調テクスチャ。立体モデルと組み合わせて使用。
+
+Final boar-coat prompt:
+Use case: photorealistic-natural. Asset type: seamless albedo texture tile for a 3D wild boar's coat in a realistic browser horror game. Fill entire square with a close macro view of dense, coarse, stiff wild-boar bristles. Natural near-charcoal and muted dark umber hairs, a few grayish tips, irregular clusters and dark undercoat between fibers, subtly muddy roots. Bristles lie mostly toward the bottom of the image, randomly varied lengths and slight curvature; no repeating parallel geometric lines. Flat diffuse even illumination, no baked highlights or shadows, no animal face, no body outline, no objects, no labels, no border. Real photographic fine hair texture, seamless edges, 1024x1024.
